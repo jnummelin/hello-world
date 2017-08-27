@@ -1,0 +1,29 @@
+stack: kontena/hello-world
+version: 1.0.0
+description: Sample stack to test Kontena deployments
+variables:
+  scaling:
+    type: integer
+    default: 2
+    from:
+      prompt: How many instances?
+services:
+  lb:
+    image: kontena/lb:latest
+    mem_limit: 64m
+    deploy:
+      strategy: daemon
+    ports:
+      - "80:80"
+  web:
+    image: kontena/hello-world:latest
+    instances: {{ scaling }}
+    health_check:
+      protocol: http
+      uri: /
+      port: 9292
+    mem_limit: 64m
+    environment:
+      KONTENA_LB_INTERNAL_PORT: 9292
+    links:
+      - lb
